@@ -1,0 +1,2 @@
+DATABASE_FILE_PATH=/path/to/example.db
+RESULT_FILE=./result.txt

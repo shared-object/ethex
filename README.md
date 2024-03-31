@@ -14,13 +14,13 @@ go mod tidy
 You should build it once, then you can run the already built app
 
 ```shell
-go build ./cmd
+go build ./cmd/main.go
 ```
 
 or for windows
 
 ```shell
-go build .\cmd
+go build .\cmd\main.go
 ```
 
 ### Run app
@@ -28,11 +28,11 @@ go build .\cmd
 All done, now you can launch app
 
 ```shell
-./ethex
+./main
 ```
 
 or for windows 
 
 ```shell
-.\ethex.exe
+.\main.exe
 ```

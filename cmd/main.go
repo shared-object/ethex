@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/xllwhoami/etherix/internal/database"
 	"github.com/xllwhoami/etherix/pkg/ethereum"
+	"golang.org/x/sync/semaphore"
 )
 
 func saveWallet(address string, seedPhrase string, privateKeyHex string, resultFile string) {
@@ -19,16 +21,15 @@ func saveWallet(address string, seedPhrase string, privateKeyHex string, resultF
 	defer file.Close()
 
 	// Content to append to the file
-	content := "This is some new content.\n"
+	content := fmt.Sprintf("Address: %s\nPrivate Key: %s\nSeed Phrase: %s\n\n", address, privateKeyHex, seedPhrase)
 
-	// Write the content to the file
 	_, err = file.WriteString(content)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func check(address string, db *database.Database, resultFile string) (bool, error) {
+func check(address string, db *database.Database) (bool, error) {
 	result, err := db.SelectAddress(address)
 
 	return result, err
@@ -42,7 +43,7 @@ func process(counter int, db *database.Database, resultFile string) {
 		log.Panic(err)
 	}
 
-	result, err := check(address, db, resultFile)
+	result, err := check(address, db)
 
 	if err != nil {
 		log.Panic(err)
@@ -51,11 +52,11 @@ func process(counter int, db *database.Database, resultFile string) {
 	if result {
 		saveWallet(address, seedPhrase, privateKeyHex, resultFile)
 
-		message := fmt.Sprintf("%d. Address founded in database", counter)
+		message := fmt.Sprintf("%d. Address %s founded in database. Saved.", counter, address)
 
 		color.Green(message)
 	} else {
-		message := fmt.Sprintf("%d. Address not found", counter)
+		message := fmt.Sprintf("%d. Address %s not found", counter, address)
 
 		color.Red(message)
 	}
@@ -94,8 +95,24 @@ func main() {
 
 	counter := 0
 
+	sem := semaphore.NewWeighted(50)
+	ctx := context.Background()
+
 	for {
-		go process(counter, db, resultFile)
-		counter++
-	} //
+		if err := sem.Acquire(ctx, 10); err != nil {
+			log.Panic(err)
+		}
+		if counter > 1000 {
+			break
+		}
+
+		go func() {
+			process(counter, db, resultFile)
+
+			sem.Release(10)
+
+			counter++
+		}()
+
+	}
 }

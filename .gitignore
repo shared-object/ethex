@@ -1,3 +1,4 @@
-a.db
+*.db
 txt
 .venv/
+.env

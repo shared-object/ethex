@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/tyler-smith/go-bip39"
-	"github.com/xllwhoami/etherix/pkg/hdwallet"
+	"github.com/xllwhoami/ethex/pkg/hdwallet"
 )
 
 func NewSeedPhrase() string {

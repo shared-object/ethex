@@ -8,8 +8,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
-	"github.com/xllwhoami/etherix/internal/database"
-	"github.com/xllwhoami/etherix/pkg/ethereum"
+	"github.com/xllwhoami/ethex/internal/database"
+	"github.com/xllwhoami/ethex/pkg/ethereum"
 	"golang.org/x/sync/semaphore"
 )
 
@@ -101,9 +101,6 @@ func main() {
 	for {
 		if err := sem.Acquire(ctx, 10); err != nil {
 			log.Panic(err)
-		}
-		if counter > 1000 {
-			break
 		}
 
 		go func() {
